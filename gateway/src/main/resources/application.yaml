@@ -1,0 +1,40 @@
+server:
+  port: 8553
+
+spring:
+  application.name: gw
+  cloud:
+    gateway:
+      routes:
+        - id: unknown
+          uri: http://unknown
+          predicates:
+            - Path=/unknown
+        - id: test_route
+          uri: http://localhost:8080
+          predicates:
+            - Path=/headers/**
+          filters: []
+    function:
+      definition: test
+    stream:
+      bindings:
+        test-out-0:
+          destination: "test-topic"
+          contentType: "application/json"
+      kafka:
+        binder:
+          brokers: "localhost:9092"
+          zkNodes: "localhost:2181"
+          enable-observation: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: DEBUG
+    org.springframework.cloud.gateway.filter.NettyRoutingFilter: TRACE
+
+management:
+  tracing:
+    enabled: true
+    propagation.type: B3_MULTI
+    sampling.probability: 0.0
